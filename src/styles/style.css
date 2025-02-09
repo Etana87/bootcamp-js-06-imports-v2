@@ -82,7 +82,17 @@ button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
+#reiniciar,
+#whatIfButton {
+  width: 100%;
+}
+#reiniciar {
+  background-color: mediumseagreen;
+}
 
+#mensaje {
+  font-size: 2em;
+}
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
