@@ -1,3 +1,6 @@
-import { initGame } from './motor';
+import { initGame } from './ui';
 
-initGame();
+document.addEventListener('DOMContentLoaded', () => {
+    initGame();
+})
+
