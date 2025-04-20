@@ -26,7 +26,7 @@ const obtenerPuntosCarta = (carta: string): number => {
 
 // Suma los puntos de la carta
 const sumarPuntos = (puntos: number): number => {
-  return puntos; // en esta lógica no hay ajuste extra
+  return puntos;
 };
 
 // Actualiza el total de puntos en el estado
