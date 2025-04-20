@@ -49,9 +49,9 @@ export const gameState = {
     return carta;
   };
   
-  export const sumarPuntos = (puntosCarta: number): number => {
-    return gameState.puntosTotales + puntosCarta;
-  };
+  // export const sumarPuntos = (puntosCarta: number): number => {
+  //   return gameState.puntosTotales + puntosCarta;
+  // };
   
   export const actualizarPuntosTotales = (nuevosPuntos: number): void => {
     gameState.puntosTotales = nuevosPuntos;
