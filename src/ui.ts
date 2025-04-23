@@ -1,63 +1,131 @@
-import { gameState } from './model';
-import { pedirCarta, plantarse, whatIf } from './motor';
+import { partida, actualizarPuntosTotales } from "./model";
+import { generarNumeroAleatorio, generarNumeroCarta, obtenerPuntosCarta, obtenerUrlCarta, sumarPuntos} from "./motor";
 
-/* Muestra la imagen de la carta en pantalla */
-export const mostrarUrlCarta = (urlCarta: string): void => {
-  const imagenElemento = document.getElementById('carta');
-  if (imagenElemento && imagenElemento instanceof HTMLImageElement) {
-    imagenElemento.src = urlCarta;
-  }
+const mostrarUrlCarta = (urlCarta: string) => {
+    const imagenElemento = document.getElementById('carta');
+
+    if (imagenElemento && imagenElemento instanceof HTMLImageElement) {
+        imagenElemento.src = urlCarta;
+    }
 };
 
-/* Muestra la puntuación actual del jugador */
-export const muestraPuntuacion = (): void => {
-  const puntuacionElemento = document.getElementById('puntuacion');
-  if (puntuacionElemento && puntuacionElemento instanceof HTMLDivElement) {
-    puntuacionElemento.textContent = `Puntuación: ${gameState.puntosTotales}`;
-  }
+export const muestraPuntuacion = () => {
+    const puntuacionElemento = document.getElementById('puntuacion');
+    if (puntuacionElemento && puntuacionElemento instanceof HTMLDivElement) {
+        puntuacionElemento.textContent = `Puntuación: ${partida.puntosTotales}`;
+    }
 };
 
-/* Muestra un mensaje al jugador */
-export const mostrarMensaje = (mensaje: string): void => {
-  const mensajeElemento = document.getElementById('mensaje');
-  if (mensajeElemento && mensajeElemento instanceof HTMLDivElement) {
-    mensajeElemento.textContent = mensaje;
-  }
+const mostrarMensaje = (mensaje: string) => {
+    const mensajeElemento = document.getElementById('mensaje');
+    if (mensajeElemento && mensajeElemento instanceof HTMLDivElement) {
+        mensajeElemento.textContent = mensaje;
+    }
 };
 
-/* Finaliza la partida: desactiva botones y muestra opciones */
-export const finalizarPartida = (): void => {
-  gameState.gameOver = true;
-  document.getElementById('reiniciar')!.style.display = 'block';
-  document.getElementById('whatIfButton')!.style.display = 'block';
-  (document.getElementById('pedirCarta') as HTMLButtonElement).disabled = true;
-  (document.getElementById('plantarse') as HTMLButtonElement).disabled = true;
+const finalizarPartida = () => {
+    const reiniciarBtn = document.getElementById('reiniciar');
+    if (reiniciarBtn && reiniciarBtn instanceof HTMLButtonElement) {
+        reiniciarBtn.style.display = 'block';
+    }
+
+    const whatIfBtn = document.getElementById('whatIfButton');
+    if (whatIfBtn && whatIfBtn instanceof HTMLButtonElement) {
+        whatIfBtn.style.display = 'block';
+    }
+
+    const pedirCartaBtn = document.getElementById('pedirCarta');
+    if (pedirCartaBtn && pedirCartaBtn instanceof HTMLButtonElement) {
+        pedirCartaBtn.disabled = true;
+    }
+
+    const plantarseBtn = document.getElementById('plantarse');
+    if (plantarseBtn && plantarseBtn instanceof HTMLButtonElement) {
+        plantarseBtn.disabled = true;
+    }
 };
 
-/* Reinicia la partida: resetea estado y limpia interfaz */
-export const reiniciarPartida = (): void => {
-  gameState.puntosTotales = 0;
-  gameState.gameOver = false;
-  gameState.plantado = false;
-
-  muestraPuntuacion();
-  mostrarMensaje('');
-
-  (document.getElementById('pedirCarta') as HTMLButtonElement).disabled = false;
-  (document.getElementById('plantarse') as HTMLButtonElement).disabled = false;
-
-  document.getElementById('reiniciar')!.style.display = 'none';
-  document.getElementById('whatIfButton')!.style.display = 'none';
+const revisarPartida = () => {
+    if (partida.puntosTotales === 7.5) {
+        mostrarMensaje('he ganado la partida');
+        finalizarPartida();
+    }
+    if (partida.puntosTotales > 7.5) {
+        console.log('he perdido la partida');
+        mostrarMensaje('Game Over');
+        finalizarPartida();
+    }
 };
 
-/* Inicializa el juego al cargar la página */
-export const initGame = (): void => {
-  document.addEventListener('DOMContentLoaded', () => {
+export const pedirCarta = () => {
+    // if (gameOver) return;
+    
+    const numeroAleatorio = generarNumeroAleatorio();
+    const carta = generarNumeroCarta(numeroAleatorio);
+    const urlCarta = obtenerUrlCarta(carta);
+    mostrarUrlCarta(urlCarta);
+    const puntosCarta = obtenerPuntosCarta(carta);
+    const puntosSumados = sumarPuntos(puntosCarta);
+    actualizarPuntosTotales(puntosSumados);
     muestraPuntuacion();
+    revisarPartida();
+};
 
-    document.getElementById('pedirCarta')!.addEventListener('click', pedirCarta);
-    document.getElementById('plantarse')!.addEventListener('click', plantarse);
-    document.getElementById('reiniciar')!.addEventListener('click', reiniciarPartida);
-    document.getElementById('whatIfButton')!.addEventListener('click', whatIf);
-  });
+const obtenerMensajePlantarse = () => {
+    if (partida.puntosTotales < 4) {
+        return "Has sido muy conservador";
+    } else if (partida.puntosTotales === 5) {
+        return "Te ha entrado el canguelo eh?";
+    } else if (partida.puntosTotales === 6 || partida.puntosTotales === 7) {
+        return "Casi casi...";
+    } else if (partida.puntosTotales === 7.5) {
+        return "¡Lo has clavado! ¡Enhorabuena!";
+    }
+    return "Has perdido";
+}
+
+export const plantarse = () => {
+    // if (gameOver) return;
+    // plantado = true;
+    
+    const mensaje = obtenerMensajePlantarse();
+    mostrarMensaje(mensaje);
+    finalizarPartida();
+};
+
+export const whatIf = () => {
+    let simulacionPuntos = partida.puntosTotales;
+    const numeroAleatorio = generarNumeroAleatorio();
+        const carta = generarNumeroCarta(numeroAleatorio);
+        const puntosCarta = obtenerPuntosCarta(carta);
+        simulacionPuntos += puntosCarta;
+        if (simulacionPuntos > 7.5) {
+            mostrarMensaje(`Si hubieras seguido, te habrías pasado con ${simulacionPuntos} puntos.`);
+        }
+};
+
+export const reiniciarPartida = () => {
+    partida.puntosTotales = 0;
+    muestraPuntuacion();
+    mostrarMensaje('');
+
+    const pedirCartaBtn = document.getElementById('pedirCarta');
+    if (pedirCartaBtn && pedirCartaBtn instanceof HTMLButtonElement) {
+        pedirCartaBtn.disabled = false;
+    }
+
+    const plantarseBtn = document.getElementById('plantarse');
+    if (plantarseBtn && plantarseBtn instanceof HTMLButtonElement) {
+        plantarseBtn.disabled = false;
+    }
+
+    const reiniciarBtn = document.getElementById('reiniciar');
+    if (reiniciarBtn && reiniciarBtn instanceof HTMLElement) {
+        reiniciarBtn.style.display = 'none';
+    }
+
+    const whatIfBtn = document.getElementById('whatIfButton');
+    if (whatIfBtn && whatIfBtn instanceof HTMLElement) {
+        whatIfBtn.style.display = 'none';
+    }
 };
